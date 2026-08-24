@@ -133,6 +133,8 @@ button:disabled{opacity:0.4;cursor:default;}
 .audio-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .audio-field .fname{font-size:11px;color:var(--ink-dim);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .err{color:var(--es);font-size:12px;margin-top:6px;}
+.sync-note{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:-10px;margin-bottom:18px;}
+.sync-note.error{color:var(--es);}
 </style>
 </head>
 <body>
@@ -161,6 +163,8 @@ button:disabled{opacity:0.4;cursor:default;}
       <button id="backToGateBtn" class="ghost">← Cambiar idioma</button>
     </div>
   </header>
+
+  <p class="sync-note" id="syncNote">Conectando con la nube compartida…</p>
 
   <div class="card">
     <div class="top-controls">
@@ -281,31 +285,77 @@ button:disabled{opacity:0.4;cursor:default;}
   </div>
 </div>
 
+<!-- Firebase: almacenamiento compartido en la nube. Sustituye al guardado local
+     del navegador para que todos los dispositivos vean las mismas listas. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+
 <script>
-// Si la app se abre fuera de Claude (GitHub Pages, Netlify, archivo local),
-// window.storage no existe: lo sustituimos por una versión basada en
-// localStorage del navegador para que el guardado siga funcionando igual.
-if(!window.storage){
-  window.storage = {
-    async get(key, shared){
-      const raw = localStorage.getItem(key);
-      if(raw === null || raw === undefined) throw new Error('not found');
-      return {key, value: raw, shared: !!shared};
-    },
-    async set(key, value, shared){
-      localStorage.setItem(key, value);
-      return {key, value, shared: !!shared};
-    },
-    async delete(key, shared){
-      localStorage.removeItem(key);
-      return {key, deleted: true, shared: !!shared};
-    },
-    async list(prefix, shared){
-      const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
-      return {keys, prefix, shared: !!shared};
-    }
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyC4_R-to8t5XUUb8YLNkAM3KXy_egKGo7E",
+  authDomain: "chinese-station-f2bc2.firebaseapp.com",
+  databaseURL: "https://chinese-station-f2bc2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "chinese-station-f2bc2",
+  storageBucket: "chinese-station-f2bc2.firebasestorage.app",
+  messagingSenderId: "440692893998",
+  appId: "1:440692893998:web:62e057009f3641318df2bf"
+};
+
+let fbDb = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fbDb = firebase.database();
+}catch(e){
+  console.error('No se pudo conectar con Firebase', e);
 }
+
+// Todas las listas y audios se guardan bajo este nodo compartido de la base
+// de datos, así cualquier dispositivo que abra la app ve exactamente lo mismo.
+window.storage = {
+  async get(key, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    const snap = await fbDb.ref(key).once('value');
+    if(!snap.exists()) throw new Error('not found');
+    return {key, value: snap.val(), shared: !!shared};
+  },
+  async set(key, value, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    await fbDb.ref(key).set(value);
+    return {key, value, shared: !!shared};
+  },
+  async delete(key, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    await fbDb.ref(key).remove();
+    return {key, deleted: true, shared: !!shared};
+  },
+  async list(prefix, shared){
+    if(!fbDb) throw new Error('Sin conexión a la nube');
+    const snap = await fbDb.ref().once('value');
+    const all = snap.exists() ? Object.keys(snap.val()) : [];
+    const keys = prefix ? all.filter(k => k.startsWith(prefix)) : all;
+    return {keys, prefix, shared: !!shared};
+  }
+};
+
+(function checkConnection(){
+  const note = document.getElementById('syncNote');
+  if(!fbDb){
+    note.textContent = 'No se pudo conectar con la nube compartida. Los cambios no se guardarán.';
+    note.classList.add('error');
+    return;
+  }
+  fbDb.ref('.info/connected').on('value', snap => {
+    if(snap.val() === true){
+      note.textContent = 'Conectado — las listas se sincronizan con la nube compartida.';
+      note.classList.remove('error');
+      setTimeout(() => { note.style.display = 'none'; }, 2500);
+    } else {
+      note.style.display = 'block';
+      note.textContent = 'Sin conexión con la nube. Comprueba tu internet.';
+      note.classList.add('error');
+    }
+  });
+})();
 
 const LANGS = {
   es: {label:'Español', code:'es-ES'},
