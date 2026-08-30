@@ -135,6 +135,11 @@ button:disabled{opacity:0.4;cursor:default;}
 .err{color:var(--es);font-size:12px;margin-top:6px;}
 .sync-note{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:-10px;margin-bottom:18px;}
 .sync-note.error{color:var(--es);}
+
+/* Selector de cajón: Vocabulario / Frases, dentro de cada idioma */
+.category-tabs{display:flex;gap:8px;margin-bottom:18px;}
+.cat-tab{flex:1;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;}
+.cat-tab.active{background:var(--amber);color:#2a1c05;border-color:var(--amber);}
 </style>
 </head>
 <body>
@@ -157,12 +162,17 @@ button:disabled{opacity:0.4;cursor:default;}
         <h1>Estación Bilingüe</h1>
         <span class="section-badge" id="sectionBadge"></span>
       </div>
-      <p class="tagline">Escucha, silencio, traducción — a tu ritmo</p>
+      <p class="tagline" id="mainTagline">Escucha, silencio, traducción — a tu ritmo</p>
     </div>
     <div class="header-right">
       <button id="backToGateBtn" class="ghost">← Cambiar idioma</button>
     </div>
   </header>
+
+  <div class="category-tabs" id="categoryTabs">
+    <button class="cat-tab" data-cat="frases">📝 Frases</button>
+    <button class="cat-tab" data-cat="vocabulario">🗂️ Vocabulario</button>
+  </div>
 
   <p class="sync-note" id="syncNote">Conectando con la nube compartida…</p>
 
@@ -239,7 +249,7 @@ button:disabled{opacity:0.4;cursor:default;}
 
   <div id="listCard" class="card" style="display:none;">
     <div class="list-header" id="listHeader">
-      <h3>Frases de esta lista</h3>
+      <h3 id="listHeaderTitle">Frases de esta lista</h3>
       <span id="listToggleIcon">▾</span>
     </div>
     <div id="listBody" style="margin-top:12px;">
@@ -267,7 +277,7 @@ button:disabled{opacity:0.4;cursor:default;}
       <p class="err" id="addItemErr" style="display:none;"></p>
 
       <div class="bulk-box">
-        <p>O importa varias frases de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):</p>
+        <p id="bulkHint">O importa varias frases de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):</p>
         <textarea id="bulkInput" placeholder="Guten Morgen = Buenos días
 早上好 = Buenos días"></textarea>
         <div class="row" style="margin-top:8px;">
@@ -363,8 +373,10 @@ const LANGS = {
   zh: {label:'中文', code:'zh-CN'}
 };
 const SECTION_LABEL = {zh:'Chino', de:'Alemán'};
+const CATEGORY_LABEL = {frases:'Frases', vocabulario:'Vocabulario'};
 
 let currentSection = null; // 'zh' o 'de'
+let currentCategory = 'frases'; // 'frases' o 'vocabulario'
 let playlistsIndex = [];
 let currentPlaylist = null;
 let voices = [];
@@ -383,9 +395,12 @@ const el = id => document.getElementById(id);
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-// Una lista pertenece a la sección si su idioma 1 o idioma 2 es el idioma de esa sección
-function belongsToSection(pl, section){
-  return pl.source === section || pl.target === section;
+// Una lista pertenece al cajón (idioma + categoría) si su idioma 1 o idioma 2
+// es el idioma de esa sección, y su categoría coincide (las listas antiguas
+// sin categoría guardada se consideran "frases" por compatibilidad).
+function belongsToSection(pl, section, category){
+  const cat = pl.category || 'frases';
+  return (pl.source === section || pl.target === section) && cat === category;
 }
 
 function populateLangSelects(){
@@ -405,14 +420,34 @@ function populateLangSelects(){
   el('newTarget').value = 'es';
 }
 
+function updateCategoryUI(){
+  document.querySelectorAll('.cat-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === currentCategory);
+  });
+  const isVocab = currentCategory === 'vocabulario';
+  el('mainTagline').textContent = isVocab
+    ? 'Palabra, silencio, traducción — a tu ritmo'
+    : 'Escucha, silencio, traducción — a tu ritmo';
+  el('srcInput').placeholder = isVocab ? 'Palabra en idioma 1' : 'Frase en idioma 1';
+  el('tgtInput').placeholder = isVocab ? 'Traducción en idioma 2' : 'Traducción en idioma 2';
+  el('addItemBtn').textContent = isVocab ? 'Añadir palabra' : 'Añadir frase';
+  el('listHeaderTitle').textContent = isVocab ? 'Vocabulario de esta lista' : 'Frases de esta lista';
+  el('bulkHint').textContent = isVocab
+    ? 'O importa varias palabras de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):'
+    : 'O importa varias frases de golpe, una por línea, con formato "idioma 1 = idioma 2" (sirve para chino: pega el texto sin tener que escribirlo tú):';
+  el('newName').placeholder = isVocab ? 'Vocabulario de comida' : 'Frases básicas';
+}
+
 function enterSection(section){
   currentSection = section;
+  currentCategory = 'frases';
   el('langGate').style.display = 'none';
   el('appRoot').style.display = 'block';
   const badge = el('sectionBadge');
   badge.textContent = SECTION_LABEL[section];
   badge.className = 'section-badge ' + section;
   populateLangSelects();
+  updateCategoryUI();
   loadIndex();
 }
 
@@ -428,6 +463,15 @@ document.querySelectorAll('.gate-btn').forEach(btn => {
   btn.addEventListener('click', () => enterSection(btn.dataset.lang));
 });
 el('backToGateBtn').addEventListener('click', exitToGate);
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.dataset.cat === currentCategory) return;
+    currentCategory = btn.dataset.cat;
+    updateCategoryUI();
+    renderPlaylistSelect();
+  });
+});
 
 async function loadIndex(){
   try{
@@ -446,9 +490,12 @@ async function saveIndex(){
 function renderPlaylistSelect(){
   const sel = el('playlistSelect');
   sel.innerHTML = '';
-  const sectionLists = playlistsIndex.filter(p => belongsToSection(p, currentSection));
+  const sectionLists = playlistsIndex.filter(p => belongsToSection(p, currentSection, currentCategory));
   if(sectionLists.length === 0){
     el('emptyState').style.display = 'block';
+    el('emptyState').textContent = currentCategory === 'vocabulario'
+      ? 'Todavía no tienes ninguna lista de vocabulario en esta sección. Crea la primera con "+ Nueva lista".'
+      : 'Todavía no tienes ninguna lista de frases en esta sección. Crea la primera con "+ Nueva lista".';
     el('playerCard').style.display = 'none';
     el('listCard').style.display = 'none';
     currentPlaylist = null;
@@ -514,10 +561,11 @@ el('createListBtn').addEventListener('click', async () => {
   }
   const source = el('newSource').value;
   const target = el('newTarget').value;
+  const category = currentCategory;
   const id = uid();
-  const newPl = {id, name, source, target, pauseSeconds: 3, items: []};
+  const newPl = {id, name, source, target, category, pauseSeconds: 3, items: []};
   await window.storage.set('playlist:' + id, JSON.stringify(newPl));
-  playlistsIndex.push({id, name, source, target});
+  playlistsIndex.push({id, name, source, target, category});
   await saveIndex();
   currentPlaylist = newPl;
   renderPlaylistSelect();
@@ -568,7 +616,9 @@ function renderItems(){
   const container = el('itemsContainer');
   container.innerHTML = '';
   if(!currentPlaylist || currentPlaylist.items.length === 0){
-    container.innerHTML = '<p class="small-note">Añade tu primera frase abajo.</p>';
+    container.innerHTML = currentCategory === 'vocabulario'
+      ? '<p class="small-note">Añade tu primera palabra abajo.</p>'
+      : '<p class="small-note">Añade tu primera frase abajo.</p>';
     return;
   }
   currentPlaylist.items.forEach((item, idx) => {
@@ -634,7 +684,9 @@ el('addItemBtn').addEventListener('click', async () => {
   const tgt = el('tgtInput').value.trim();
   el('addItemErr').style.display = 'none';
   if(!src || !tgt){
-    el('addItemErr').textContent = 'Escribe la frase en ambos idiomas antes de añadir.';
+    el('addItemErr').textContent = currentCategory === 'vocabulario'
+      ? 'Escribe la palabra en ambos idiomas antes de añadir.'
+      : 'Escribe la frase en ambos idiomas antes de añadir.';
     el('addItemErr').style.display = 'block';
     return;
   }
@@ -651,7 +703,7 @@ el('addItemBtn').addEventListener('click', async () => {
       item.hasTgtAudio = true;
     }
   }catch(err){
-    el('addItemErr').textContent = 'No se pudo guardar el audio (puede ser demasiado grande). Se añadió la frase sin audio.';
+    el('addItemErr').textContent = 'No se pudo guardar el audio (puede ser demasiado grande). Se añadió sin audio.';
     el('addItemErr').style.display = 'block';
   }
   currentPlaylist.items.push(item);
@@ -794,7 +846,7 @@ async function playSegment(text, langCode, hasAudio, itemId, slot, onEnd){
 
 function updatePhraseDisplay(){
   if(!currentPlaylist || currentPlaylist.items.length === 0){
-    el('phraseText').textContent = 'Añade frases para empezar';
+    el('phraseText').textContent = currentCategory === 'vocabulario' ? 'Añade palabras para empezar' : 'Añade frases para empezar';
     el('progressIndex').textContent = '';
     return;
   }
