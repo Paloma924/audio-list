@@ -1,276 +1,70 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estación Bilingüe</title>
-
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#25333c">
-
-<link rel="preconnect" href="https://googleapis.com">
-<link rel="preconnect" href="https://gstatic.com" crossorigin>
-<link href="https://googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#25333c;
-  --panel:#1d2830;
-  --panel-2:#2f4049;
-  --ink:#f3eee3;
-  --ink-dim:#9fb2ba;
-  --ink-faint:#6d818a;
-  --line:#3d505a;
-  --es:#e2483c;
-  --es-dim:#5a2e29;
-  --de:#3fa38d;
-  --de-dim:#204540;
-  --zh:#d98a4f;
-  --zh-dim:#5a3a20;
-  --amber:#eaa23a;
-  --radius:14px;
-  --font-ui:'Space Grotesk',sans-serif;
-  --font-voice:'Fraunces',serif;
-}
-*{box-sizing:border-box;}
-
-
-  
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family:var(--font-ui);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:32px 16px 64px;
-}
-
-.gate {
-  width:100%;max-width:760px;min-height:70vh;
-  display:flex;align-items:center;justify-content:center;
-}
-.app { width:100%; max-width:760px; display:none; }
-
-.gate-inner{text-align:center;width:100%;}
-.gate-inner h1{font-size:30px;font-weight:600;margin:0 0 6px;}
-.gate-inner .tagline{color:var(--ink-dim);font-size:14px;margin:0 0 40px;}
-.gate-buttons{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
-.gate-btn{
-  font-family:var(--font-ui);width:200px;padding:32px 20px;border-radius:18px;
-  background:var(--panel);border:1px solid var(--line);color:var(--ink);
-  cursor:pointer;font-size:22px;font-weight:600;line-height:1.4;transition:transform 0.12s, border-color 0.12s;
-}
-.gate-btn:hover{transform:translateY(-3px);}
-.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;pointer-events:none;}
-.gate-btn.zh{border-color:var(--zh);color:var(--zh);}
-.gate-btn.zh:hover{background:var(--zh-dim);}
-.gate-btn.de{border-color:var(--de);color:var(--de);}
-.gate-btn.de:hover{background:var(--de-dim);}
-
-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:8px;}
-h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
-.tagline{color:var(--ink-dim);font-size:13px;margin:2px 0 0;}
-.section-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
-.section-badge.zh{background:var(--zh-dim);color:#f0c39a;}
-.section-badge.de{background:var(--de-dim);color:#9adfcd;}
-.card{background:var(--panel);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);}
-.player{text-align:center;padding:34px 22px 26px;}
-.dial{position:relative;width:180px;height:180px;margin:0 auto 22px;}
-.dial svg{width:100%;height:100%;transform:rotate(-90deg);}
-.dial-track{fill:none;stroke:var(--panel-2);stroke-width:8;}
-.dial-progress{fill:none;stroke:var(--amber);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.15s linear;}
-.dial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.dial-lang{font-size:12px;letter-spacing:2px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:6px;}
-.dial-lang.de{background:var(--de-dim);color:#9adfcd;}
-.dial-lang.zh{background:var(--zh-dim);color:#f0c39a;}
-.dial-count{font-size:26px;font-weight:600;color:var(--ink);}
-.phrase{font-family:var(--font-voice);font-size:24px;line-height:1.35;min-height:64px;margin:0 0 4px;padding:0 8px;}
-.progress-index{color:var(--ink-dim);font-size:13px;margin-bottom:20px;}
-.controls-main{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:22px;}
-.controls-main button{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);cursor:pointer;}
-.controls-main button.play{width:58px;height:58px;font-size:20px;background:var(--amber);color:#2a1c05;border-color:var(--amber);}
-</style>
-</head>
-<body>
-97    <body>
-98    <audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
-99    
-100   <!-- PANTALLA INICIAL (PORTADA) -->
-
-<!-- PANTALLA INICIAL (PORTADA) -->
-<div class="gate" id="langGate">
-  <div class="gate-inner">
-    <h1>Estación Bilingüe</h1>
-    <p class="tagline">¿Qué idioma quieres practicar hoy?</p>
-    <div class="gate-buttons">
-      <button class="gate-btn zh" data-lang="zh">中文<span>Chino</span></button>
-      <button class="gate-btn de" data-lang="de">Deutsch<span>Alemán</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- INTERFAZ PRINCIPAL DEL REPRODUCTOR -->
-<div class="app" id="mainApp">
-  <header>
-    <div>
-      <h1 id="appTitle">Estación Bilingüe</h1>
-      <p class="tagline">Repetición y práctica activa</p>
-    </div>
-    <span class="section-badge de" id="langBadge">DE</span>
-  </header>
-
-  <div class="card player">
-    <div class="dial">
-      <svg viewBox="0 0 100 100">
-        <circle class="dial-track" cx="50" cy="50" r="44"></circle>
-        <circle class="dial-progress" id="dialProgress" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46"></circle>
-      </svg>
-      <div class="dial-center">
-        <span class="dial-lang de" id="dialLang">DE</span>
-        <div class="dial-count" id="dialCount">00:00</div>
-      </div>
-    </div>
-
-    <div class="phrase" id="phraseDisplay">Presiona Play para comenzar</div>
-    <div class="progress-index" id="progressIndex">Frase 0 de 0</div>
-
-    <div class="controls-main">
-      <button id="btnPrev">⏮</button>
-      <button class="play" id="btnPlay">▶</button>
-      <button id="btnNext">⏭</button>
-    </div>
-  </div>
-</div>
-
-<!-- AUDIO FANTASMA EN LOOP CONTINUO -->
-<audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
-
+<!-- CÓDIGO PARA MOVER LAS PANTALLAS Y ACTIVAR EL AUDIO EN SEGUNDO PLANO -->
 <script>
+// Base de datos de prueba (aquí irán tus audios reales en el futuro)
 const playlistData = {
-  de: [
-    { texto: "Guten Morgen", duracion: 3 },
-    { texto: "Wie geht es dir?", duracion: 4 },
-    { texto: "Vielen Dank", duracion: 3 }
-  ],
-  zh: [
-    { texto: "早上好 (Zǎoshang hǎo)", duracion: 3 },
-    { texto: "你好吗？(Nǐ hǎo ma?)", duracion: 4 },
-    { texto: "谢谢 (Xièxiè)", duracion: 3 }
-  ]
+  de: [{ texto: "Guten Morgen", duracion: 3 }, { texto: "Wie geht es dir?", duracion: 4 }],
+  zh: [{ texto: "早上好 (Zǎoshang hǎo)", duracion: 3 }, { texto: "你好吗？(Nǐ hǎo ma?)", duracion: 4 }]
 };
 
 let currentLang = 'de';
 let currentIndex = 0;
 let isPlaying = false;
-let timerInterval = null;
-let currentProgressTime = 0;
-let currentMaxDuration = 5;
 let audioCtx = null;
 
-const langGate = document.getElementById('langGate');
-const mainApp = document.getElementById('mainApp');
-const btnPlay = document.getElementById('btnPlay');
-const btnPrev = document.getElementById('btnPrev');
-const btnNext = document.getElementById('btnNext');
-const phraseDisplay = document.getElementById('phraseDisplay');
-const progressIndex = document.getElementById('progressIndex');
-const langBadge = document.getElementById('langBadge');
-const dialLang = document.getElementById('dialLang');
-const dialProgress = document.getElementById('dialProgress');
-const silentPlayer = document.getElementById('silentBackgroundPlayer');
+// Esperamos a que la página cargue para activar los botones
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // 1. Ocultar el reproductor al principio para que solo se vea la portada
+  const mainApp = document.getElementById('mainApp') || document.querySelector('.app');
+  const langGate = document.getElementById('langGate') || document.querySelector('.gate');
+  
+  if (mainApp) mainApp.style.display = 'none';
 
-function abrirReproductor(idioma) {
-  try {
-    currentLang = idioma;
-    
-    // Cambio visual obligatorio de pantallas (pasa primero que todo)
-    langGate.style.display = 'none';
-    mainApp.style.display = 'block';
-    
-    langBadge.textContent = currentLang.toUpperCase();
-    langBadge.className = `section-badge ${currentLang}`;
-    dialLang.textContent = currentLang.toUpperCase();
-    dialLang.className = `dial-lang ${currentLang}`;
-    
-    currentIndex = 0;
-    cargarFrase(currentIndex);
-  } catch (error) {
-    console.error("Fallo controlado al abrir el reproductor:", error);
-  }
-}
+  // 2. Escuchar cuando el usuario pulsa Chino o Alemán
+  document.addEventListener('click', function(e) {
+    const boton = e.target.closest('.gate-btn');
+    if (!boton) return;
 
-// Evento click global blindado
-document.addEventListener('click', function(e) {
-  const boton = e.target.closest('.gate-btn');
-  if (!boton) return;
-
-  const idioma = boton.getAttribute('data-lang');
-  abrirReproductor(idioma);
+    // Detectar idioma
+    currentLang = boton.getAttribute('data-lang') || (boton.classList.contains('zh') ? 'zh' : 'de');
+    
+    // CAMBIO DE PANTALLA: Ocultar portada y mostrar reproductor
+    if (langGate) langGate.style.display = 'none';
+    if (mainApp) mainApp.style.display = 'block';
+    
+    // Cargar la primera frase
+    cargarFraseProvisional(0);
+  });
 });
 
-function cargarFrase(index) {
-  try {
-    const lista = playlistData[currentLang];
-    if (!lista || lista.length === 0) return;
-
-    phraseDisplay.textContent = lista[index].texto;
-    progressIndex.textContent = `Frase ${index + 1} de ${lista.length}`;
-    
-    currentProgressTime = 0;
-    currentMaxDuration = lista[index].duracion;
-    actualizarContadorGrafico(0);
-    
-    // Ejecutar actualización de la pantalla de bloqueo de forma aislada para que no rompa nada
-    actualizarPantallaBloqueo(lista[index].texto);
-
-    if (isPlaying) {
-      emitirSonidoDePrueba();
-      iniciarContadorFrase();
-    }
-  } catch (err) {
-    console.error("Error al cargar frase:", err);
+function cargarFraseProvisional(index) {
+  const display = document.getElementById('phraseDisplay') || document.querySelector('.phrase');
+  const lista = playlistData[currentLang];
+  if (display && lista) {
+    display.textContent = lista[index].texto;
+  }
+  // Configurar metadatos para la pantalla bloqueada del móvil
+  if ('mediaSession' in navigator && typeof window.MediaMetadata !== 'undefined') {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: lista[index].texto,
+      artist: 'Estación Bilingüe',
+      album: `Práctica (${currentLang.toUpperCase()})`
+    });
   }
 }
 
-function emitirSonidoDePrueba() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+// Escucha del botón Play principal para el segundo plano
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('play') || e.target.id === 'btnPlay') {
+    isPlaying = !isPlaying;
+    e.target.textContent = isPlaying ? '⏸' : '▶';
     
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(currentLang === 'de' ? 440 : 580, audioCtx.currentTime); 
-    
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.4);
-  } catch(e) {
-    console.log("AudioContext bloqueado u omitido");
-  }
-}
-
-function iniciarContadorFrase() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (!isPlaying) return;
-    currentProgressTime += 0.1;
-    if (currentProgressTime >= currentMaxDuration) {
-      clearInterval(timerInterval);
-      ejecutarNext();
-    } else {
-      actualizarContadorGrafico(currentProgressTime);
+    // Activar audio fantasma ultrasilencioso para que el móvil no congele la app al apagar la pantalla
+    const silentPlayer = document.getElementById('silentBackgroundPlayer');
+    if (silentPlayer) {
+      if (isPlaying) silentPlayer.play().catch(() => {});
+      else silentPlayer.pause();
     }
-  }, 100);
-}
-
-function actualizarContadorGrafico(tiempoActual) {
+  }
+});
+</script>
