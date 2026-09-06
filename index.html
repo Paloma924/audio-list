@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estación Bilingüe</title>
+
+<!-- Meta tags para que el navegador trate la reproducción como una sesión
+     de medios real (controles en pantalla de bloqueo, menor probabilidad
+     de que se corte al apagar la pantalla) y para poder instalarla como
+     app en el móvil, lo que mejora mucho la fiabilidad en segundo plano. -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bilingüe">
+<meta name="theme-color" content="#25333c">
+<link rel="manifest" id="manifestLink">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
@@ -245,6 +257,9 @@ button:disabled{opacity:0.4;cursor:default;}
       <button id="loopToggle">Repetir lista</button>
       <button id="hideToggle">Ocultar texto</button>
     </div>
+    <p class="small-note" id="backgroundNote">
+      🔒 Para que siga sonando con la pantalla apagada: usa frases con audio propio (no voz sintética) — la voz sintética se corta al bloquear el móvil. En iPhone, para más fiabilidad, añade esta página a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde ahí.
+    </p>
   </div>
 
   <div id="listCard" class="card" style="display:none;">
@@ -294,6 +309,14 @@ button:disabled{opacity:0.4;cursor:default;}
     </div>
   </div>
 </div>
+
+<!-- Elementos de audio persistentes: uno para el contenido de las frases y
+     otro que mantiene viva la sesión de audio del navegador (evita que el
+     sistema pause la reproducción/los temporizadores al apagar la pantalla).
+     No se crean nuevos <audio> sobre la marcha para no perder el "media
+     session" que el sistema operativo asocia a la pestaña. -->
+<audio id="mainAudio" playsinline webkit-playsinline preload="auto"></audio>
+<audio id="keepAliveAudio" playsinline webkit-playsinline preload="auto" loop></audio>
 
 <!-- Firebase: almacenamiento compartido en la nube. Sustituye al guardado local
      del navegador para que todos los dispositivos vean las mismas listas. -->
@@ -367,6 +390,25 @@ window.storage = {
   });
 })();
 
+// Manifest generado en memoria (permite instalar la app en la pantalla de
+// inicio de Android/Chrome sin necesidad de subir un archivo aparte a Netlify).
+(function setupManifest(){
+  try{
+    const manifest = {
+      name: 'Estación Bilingüe',
+      short_name: 'Bilingüe',
+      start_url: '.',
+      display: 'standalone',
+      background_color: '#25333c',
+      theme_color: '#25333c',
+      icons: []
+    };
+    const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    const link = document.getElementById('manifestLink');
+    if(link) link.setAttribute('href', URL.createObjectURL(blob));
+  }catch(e){}
+})();
+
 const LANGS = {
   es: {label:'Español', code:'es-ES'},
   de: {label:'Deutsch', code:'de-DE'},
@@ -374,6 +416,12 @@ const LANGS = {
 };
 const SECTION_LABEL = {zh:'Chino', de:'Alemán'};
 const CATEGORY_LABEL = {frases:'Frases', vocabulario:'Vocabulario'};
+
+// Tono casi inaudible (2s, en bucle) que se reproduce mientras la lista está
+// en marcha. Mantiene la pestaña "sonando" de forma continua, lo cual es lo
+// que hace que el sistema operativo no suspenda los temporizadores ni corte
+// la sesión de audio en segundo plano al apagar la pantalla.
+const KEEPALIVE_AUDIO_DATA_URI = 'data:audio/wav;base64,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';
 
 let currentSection = null; // 'zh' o 'de'
 let currentCategory = 'frases'; // 'frases' o 'vocabulario'
@@ -387,11 +435,25 @@ let countdownInterval = null;
 let hideText = false;
 let orderSwapped = false;
 let loopList = false;
-let currentAudioEl = null;
 let pendingSrcAudio = null;
 let pendingTgtAudio = null;
 
 const el = id => document.getElementById(id);
+
+// Elementos <audio> persistentes (ver comentario en el HTML).
+const mainAudioEl = el('mainAudio');
+const keepAliveAudioEl = el('keepAliveAudio');
+
+function startKeepAlive(){
+  try{
+    keepAliveAudioEl.loop = true;
+    if(keepAliveAudioEl.src !== KEEPALIVE_AUDIO_DATA_URI) keepAliveAudioEl.src = KEEPALIVE_AUDIO_DATA_URI;
+    keepAliveAudioEl.play().catch(()=>{});
+  }catch(e){}
+}
+function stopKeepAlive(){
+  try{ keepAliveAudioEl.pause(); }catch(e){}
+}
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -826,17 +888,20 @@ function speak(text, langCode, onEnd){
   window.speechSynthesis.speak(utter);
 }
 
+// Reproduce un segmento (frase/palabra) usando el <audio> persistente cuando
+// hay un archivo propio guardado; si no lo hay, cae en voz sintética (que no
+// sonará con la pantalla apagada — ver nota en la interfaz).
 async function playSegment(text, langCode, hasAudio, itemId, slot, onEnd){
+  updateMediaSessionMetadata(text, LANGS[langCode].label);
   if(hasAudio){
     try{
       const res = await window.storage.get(audioKey(currentPlaylist.id, itemId, slot));
       if(res && res.value){
-        if(currentAudioEl){ currentAudioEl.pause(); currentAudioEl = null; }
-        const audio = new Audio(res.value);
-        currentAudioEl = audio;
-        audio.onended = onEnd;
-        audio.onerror = () => speak(text, langCode, onEnd);
-        audio.play().catch(() => speak(text, langCode, onEnd));
+        mainAudioEl.loop = false;
+        mainAudioEl.onended = onEnd;
+        mainAudioEl.onerror = () => speak(text, langCode, onEnd);
+        mainAudioEl.src = res.value;
+        mainAudioEl.play().catch(() => speak(text, langCode, onEnd));
         return;
       }
     }catch(e){}
@@ -875,11 +940,31 @@ function clearTimers(){
   countdownInterval = null;
 }
 
+// --- Media Session: controles en la pantalla de bloqueo / notificaciones ---
+function updateMediaSessionMetadata(text, langLabel){
+  if(!('mediaSession' in navigator) || !currentPlaylist) return;
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: hideText ? '· · ·' : text,
+      artist: langLabel,
+      album: currentPlaylist.name
+    });
+  }catch(e){}
+}
+if('mediaSession' in navigator){
+  navigator.mediaSession.setActionHandler('play', () => { if(!playing) startPlayback(); });
+  navigator.mediaSession.setActionHandler('pause', () => { if(playing){ stopPlayback(); updatePhraseDisplay(); } });
+  navigator.mediaSession.setActionHandler('previoustrack', () => el('prevBtn').click());
+  navigator.mediaSession.setActionHandler('nexttrack', () => el('nextBtn').click());
+}
+
 function stopPlayback(){
   playing = false;
   clearTimers();
   window.speechSynthesis.cancel();
-  if(currentAudioEl){ currentAudioEl.pause(); currentAudioEl = null; }
+  try{ mainAudioEl.pause(); }catch(e){}
+  stopKeepAlive();
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
   el('playBtn').textContent = '▶';
   setDial('idle', 0);
   el('dialCount').textContent = '';
@@ -890,6 +975,8 @@ function startPlayback(){
   if(!currentPlaylist || currentPlaylist.items.length === 0) return;
   playing = true;
   el('playBtn').textContent = '❙❙';
+  startKeepAlive();
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
   runPhase('first');
 }
 
@@ -920,6 +1007,7 @@ function runPhase(phase){
     setDial('idle', 0);
     el('dialCount').textContent = remaining;
     el('phraseText').textContent = hideText ? '· · ·' : '···';
+    updateMediaSessionMetadata('Silencio', currentPlaylist.name);
     countdownInterval = setInterval(() => {
       remaining -= 1;
       if(remaining <= 0){
