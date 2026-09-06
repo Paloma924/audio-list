@@ -4,9 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estación Bilingüe</title>
-<link rel="preconnect" href="https://googleapis.com">
-<link rel="preconnect" href="https://gstatic.com" crossorigin>
-<link href="https://googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bilingüe">
+<meta name="theme-color" content="#25333c">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#25333c;
@@ -34,34 +41,19 @@ body{
   color:var(--ink);
   font-family:var(--font-ui);
   min-height:100vh;
-  // Reemplaza tu bucle de botones antiguo por este código exacto:
-document.addEventListener("click", function(e) {
-  // Busca si se ha pulsado el botón de chino o alemán
-  const boton = e.target.closest('.gate-btn');
-  if (!boton) return; // Si no es un botón, no hace nada
-
-  // Lee el idioma (zh o de)
-  const idioma = boton.getAttribute('data-lang');
-  
-  // CAMBIO DE PANTALLA EXPLICITO:
-  document.getElementById('langGate').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  
-  // Aquí pones tu función para cargar las canciones o frases:
-  // cargarFrase(0); 
-});
-
   display:flex;
-  justify-content:center;
+  flex-direction:column;
+  align-items:center;
   padding:32px 16px 64px;
 }
-.app{width:100%;max-width:760px; display:none;}
 
-/* Pantalla de selección de idioma */
-.gate{
+/* Manejo seguro de pantallas */
+.gate {
   width:100%;max-width:760px;min-height:70vh;
   display:flex;align-items:center;justify-content:center;
 }
+.app { width:100%; max-width:760px; display:none; } /* Asegura ocultación inicial limpia */
+
 .gate-inner{text-align:center;width:100%;}
 .gate-inner h1{font-size:30px;font-weight:600;margin:0 0 6px;}
 .gate-inner .tagline{color:var(--ink-dim);font-size:14px;margin:0 0 40px;}
@@ -72,7 +64,7 @@ document.addEventListener("click", function(e) {
   cursor:pointer;font-size:22px;font-weight:600;line-height:1.4;transition:transform 0.12s, border-color 0.12s;
 }
 .gate-btn:hover{transform:translateY(-3px);}
-.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;}
+.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;pointer-events:none;} /* Evita clicks rotos en móvil */
 .gate-btn.zh{border-color:var(--zh);color:var(--zh);}
 .gate-btn.zh:hover{background:var(--zh-dim);}
 .gate-btn.de{border-color:var(--de);color:var(--de);}
@@ -84,10 +76,7 @@ h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
 .section-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
 .section-badge.zh{background:var(--zh-dim);color:#f0c39a;}
 .section-badge.de{background:var(--de-dim);color:#9adfcd;}
-.header-right{display:flex;align-items:center;gap:10px;}
 .card{background:var(--panel);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);}
-label{font-size:12px;color:var(--ink-dim);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
-.empty{color:var(--ink-dim);font-size:14px;text-align:center;padding:30px 10px;}
 .player{text-align:center;padding:34px 22px 26px;}
 .dial{position:relative;width:180px;height:180px;margin:0 auto 22px;}
 .dial svg{width:100%;height:100%;transform:rotate(-90deg);}
@@ -95,21 +84,19 @@ label{font-size:12px;color:var(--ink-dim);display:block;margin-bottom:6px;text-t
 .dial-progress{fill:none;stroke:var(--amber);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.15s linear;}
 .dial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .dial-lang{font-size:12px;letter-spacing:2px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:6px;}
-.dial-lang.es{background:var(--es-dim);color:#f4a99f;}
 .dial-lang.de{background:var(--de-dim);color:#9adfcd;}
 .dial-lang.zh{background:var(--zh-dim);color:#f0c39a;}
-.dial-lang.idle{background:var(--panel-2);color:var(--ink-faint);}
 .dial-count{font-size:26px;font-weight:600;color:var(--ink);}
 .phrase{font-family:var(--font-voice);font-size:24px;line-height:1.35;min-height:64px;margin:0 0 4px;padding:0 8px;}
 .progress-index{color:var(--ink-dim);font-size:13px;margin-bottom:20px;}
 .controls-main{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:22px;}
-.controls-main button{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;}
-.controls-main button.play{width:58px;height:58px;font-size:20px;}
+.controls-main button{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);cursor:pointer;}
+.controls-main button.play{width:58px;height:58px;font-size:20px;background:var(--amber);color:#2a1c05;border-color:var(--amber);}
 </style>
 </head>
 <body>
 
-<!-- PANTALLA INICIAL (PUERTA DE IDIOMAS) -->
+<!-- PANTALLA INICIAL (PORTADA) -->
 <div class="gate" id="langGate">
   <div class="gate-inner">
     <h1>Estación Bilingüe</h1>
@@ -154,11 +141,11 @@ label{font-size:12px;color:var(--ink-dim);display:block;margin-bottom:6px;text-t
   </div>
 </div>
 
-<!-- 🔊 AUDIO FANTASMA EN BASE64 -->
+<!-- 🔊 TRUCO FONDO: AUDIO FANTASMA EN LOOP CONTINUO -->
 <audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
 
 <script>
-// Base de datos de frases local segura para pruebas instantáneas
+// Base de datos de frases local segura para evitar esperas de carga de internet
 const playlistData = {
   de: [
     { texto: "Guten Morgen", duracion: 3 },
@@ -178,11 +165,9 @@ let isPlaying = false;
 let timerInterval = null;
 let currentProgressTime = 0;
 let currentMaxDuration = 5;
-
-// Variables para sintetizar sonidos limpios de prueba (Web Audio API)
 let audioCtx = null;
 
-// Elementos del DOM
+// Capturas seguras de los elementos de la interfaz
 const langGate = document.getElementById('langGate');
 const mainApp = document.getElementById('mainApp');
 const btnPlay = document.getElementById('btnPlay');
@@ -195,23 +180,25 @@ const dialLang = document.getElementById('dialLang');
 const dialProgress = document.getElementById('dialProgress');
 const silentPlayer = document.getElementById('silentBackgroundPlayer');
 
-// Manejo de la pantalla de bienvenida (Corregido: ahora es inmediato)
-document.querySelectorAll('.gate-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    currentLang = e.currentTarget.getAttribute('data-lang');
-    
-    // Ocultar portada y mostrar app sin bloqueos de red
-    langGate.style.display = 'none';
-    mainApp.style.display = 'block';
-    
-    langBadge.textContent = currentLang.toUpperCase();
-    langBadge.className = `section-badge ${currentLang}`;
-    dialLang.textContent = currentLang.toUpperCase();
-    dialLang.className = `dial-lang ${currentLang}`;
-    
-    currentIndex = 0;
-    cargarFrase(currentIndex);
-  });
+// Manejo unificado de clicks/taps en la portada
+document.addEventListener('click', function(e) {
+  const boton = e.target.closest('.gate-btn');
+  if (!boton) return;
+
+  currentLang = boton.getAttribute('data-lang');
+  
+  // Intercambio inmediato de pantallas
+  langGate.style.display = 'none';
+  mainApp.style.display = 'block';
+  
+  // Configurar las variables estéticas iniciales
+  langBadge.textContent = currentLang.toUpperCase();
+  langBadge.className = `section-badge ${currentLang}`;
+  dialLang.textContent = currentLang.toUpperCase();
+  dialLang.className = `dial-lang ${currentLang}`;
+  
+  currentIndex = 0;
+  cargarFrase(currentIndex);
 });
 
 function cargarFrase(index) {
@@ -221,42 +208,39 @@ function cargarFrase(index) {
   phraseDisplay.textContent = lista[index].texto;
   progressIndex.textContent = `Frase ${index + 1} de ${lista.length}`;
   
-  // Reiniciar contadores de tiempo del reproductor simulado
   currentProgressTime = 0;
   currentMaxDuration = lista[index].duracion;
   actualizarContadorGrafico(0);
-
-  // Actualizar pantalla de bloqueo nativa
   actualizarPantallaBloqueo(lista[index].texto);
 
-  // Si estaba reproduciéndose, emitir el pitido bilingüe y continuar contador
   if (isPlaying) {
     emitirSonidoDePrueba();
     iniciarContadorFrase();
   }
 }
 
-// Generador de un "Bip" electrónico armónico simulando el audio bilingüe real
+// Generador de pitido nativo autónomo (Web Audio API)
 function emitirSonidoDePrueba() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
     osc.type = 'sine';
-    // Frecuencia diferente según el idioma para identificarlo
     osc.frequency.setValueAtTime(currentLang === 'de' ? 440 : 580, audioCtx.currentTime); 
     
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5); // Desvanecer en 0.5 seg
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
     
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
+    osc.stop(audioCtx.currentTime + 0.4);
   } catch(e) {
-    console.log("AudioContext bloqueado temporalmente por el navegador");
+    console.log("AudioContext bloqueado");
   }
 }
 
@@ -264,7 +248,14 @@ function iniciarContadorFrase() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     if (!isPlaying) return;
-    
     currentProgressTime += 0.1;
     if (currentProgressTime >= currentMaxDuration) {
       clearInterval(timerInterval);
+      ejecutarNext();
+    } else {
+      actualizarContadorGrafico(currentProgressTime);
+    }
+  }, 100);
+}
+
+function actualizarContadorGrafico(tiempoActual) {
