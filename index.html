@@ -139,7 +139,7 @@ h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
   </div>
 </div>
 
-<!--🔊 AUDIO FANTASMA EN LOOP CONTINUO -->
+<!-- AUDIO FANTASMA EN LOOP CONTINUO -->
 <audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
 
 <script>
@@ -177,22 +177,26 @@ const dialProgress = document.getElementById('dialProgress');
 const silentPlayer = document.getElementById('silentBackgroundPlayer');
 
 function abrirReproductor(idioma) {
-  currentLang = idioma;
-  
-  // CORREGIDO: Cambio de pantalla limpio e instantáneo
-  langGate.style.display = 'none';
-  mainApp.style.display = 'block';
-  
-  langBadge.textContent = currentLang.toUpperCase();
-  langBadge.className = `section-badge ${currentLang}`;
-  dialLang.textContent = currentLang.toUpperCase();
-  dialLang.className = `dial-lang ${currentLang}`;
-  
-  currentIndex = 0;
-  cargarFrase(currentIndex);
+  try {
+    currentLang = idioma;
+    
+    // Cambio visual obligatorio de pantallas (pasa primero que todo)
+    langGate.style.display = 'none';
+    mainApp.style.display = 'block';
+    
+    langBadge.textContent = currentLang.toUpperCase();
+    langBadge.className = `section-badge ${currentLang}`;
+    dialLang.textContent = currentLang.toUpperCase();
+    dialLang.className = `dial-lang ${currentLang}`;
+    
+    currentIndex = 0;
+    cargarFrase(currentIndex);
+  } catch (error) {
+    console.error("Fallo controlado al abrir el reproductor:", error);
+  }
 }
 
-// Evento global adaptado de forma segura tanto para ordenadores como móviles
+// Evento click global blindado
 document.addEventListener('click', function(e) {
   const boton = e.target.closest('.gate-btn');
   if (!boton) return;
@@ -202,20 +206,26 @@ document.addEventListener('click', function(e) {
 });
 
 function cargarFrase(index) {
-  const lista = playlistData[currentLang];
-  if (!lista || lista.length === 0) return;
+  try {
+    const lista = playlistData[currentLang];
+    if (!lista || lista.length === 0) return;
 
-  phraseDisplay.textContent = lista[index].texto;
-  progressIndex.textContent = `Frase ${index + 1} de ${lista.length}`;
-  
-  currentProgressTime = 0;
-  currentMaxDuration = lista[index].duracion;
-  actualizarContadorGrafico(0);
-  actualizarPantallaBloqueo(lista[index].texto);
+    phraseDisplay.textContent = lista[index].texto;
+    progressIndex.textContent = `Frase ${index + 1} de ${lista.length}`;
+    
+    currentProgressTime = 0;
+    currentMaxDuration = lista[index].duracion;
+    actualizarContadorGrafico(0);
+    
+    // Ejecutar actualización de la pantalla de bloqueo de forma aislada para que no rompa nada
+    actualizarPantallaBloqueo(lista[index].texto);
 
-  if (isPlaying) {
-    emitirSonidoDePrueba();
-    iniciarContadorFrase();
+    if (isPlaying) {
+      emitirSonidoDePrueba();
+      iniciarContadorFrase();
+    }
+  } catch (err) {
+    console.error("Error al cargar frase:", err);
   }
 }
 
@@ -239,7 +249,7 @@ function emitirSonidoDePrueba() {
     osc.start();
     osc.stop(audioCtx.currentTime + 0.4);
   } catch(e) {
-    console.log("AudioContext bloqueado");
+    console.log("AudioContext bloqueado u omitido");
   }
 }
 
@@ -258,9 +268,3 @@ function iniciarContadorFrase() {
 }
 
 function actualizarContadorGrafico(tiempoActual) {
-  const porcentaje = tiempoActual / currentMaxDuration;
-  const circunferencia = 276.46;
-  const offset = circunferencia - (porcentaje * circumference);
-  dialProgress.style.strokeDashoffset = offset;
-  
-  const mins = Math.floor(tiempoActual / 60).toString().padStart(2, '0');
