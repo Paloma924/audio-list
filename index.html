@@ -34,6 +34,23 @@ body{
   color:var(--ink);
   font-family:var(--font-ui);
   min-height:100vh;
+  // Reemplaza tu bucle de botones antiguo por este código exacto:
+document.addEventListener("click", function(e) {
+  // Busca si se ha pulsado el botón de chino o alemán
+  const boton = e.target.closest('.gate-btn');
+  if (!boton) return; // Si no es un botón, no hace nada
+
+  // Lee el idioma (zh o de)
+  const idioma = boton.getAttribute('data-lang');
+  
+  // CAMBIO DE PANTALLA EXPLICITO:
+  document.getElementById('langGate').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  
+  // Aquí pones tu función para cargar las canciones o frases:
+  // cargarFrase(0); 
+});
+
   display:flex;
   justify-content:center;
   padding:32px 16px 64px;
