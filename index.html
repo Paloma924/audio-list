@@ -8,12 +8,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bilingüe">
 <meta name="theme-color" content="#25333c">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://googleapis.com">
+<link rel="preconnect" href="https://gstatic.com" crossorigin>
+<link href="https://googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#25333c;
@@ -47,12 +46,11 @@ body{
   padding:32px 16px 64px;
 }
 
-/* Manejo seguro de pantallas */
 .gate {
   width:100%;max-width:760px;min-height:70vh;
   display:flex;align-items:center;justify-content:center;
 }
-.app { width:100%; max-width:760px; display:none; } /* Asegura ocultación inicial limpia */
+.app { width:100%; max-width:760px; display:none; }
 
 .gate-inner{text-align:center;width:100%;}
 .gate-inner h1{font-size:30px;font-weight:600;margin:0 0 6px;}
@@ -64,7 +62,7 @@ body{
   cursor:pointer;font-size:22px;font-weight:600;line-height:1.4;transition:transform 0.12s, border-color 0.12s;
 }
 .gate-btn:hover{transform:translateY(-3px);}
-.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;pointer-events:none;} /* Evita clicks rotos en móvil */
+.gate-btn span{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:6px;pointer-events:none;}
 .gate-btn.zh{border-color:var(--zh);color:var(--zh);}
 .gate-btn.zh:hover{background:var(--zh-dim);}
 .gate-btn.de{border-color:var(--de);color:var(--de);}
@@ -141,11 +139,10 @@ h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
   </div>
 </div>
 
-<!-- 🔊 TRUCO FONDO: AUDIO FANTASMA EN LOOP CONTINUO -->
+<!--🔊 AUDIO FANTASMA EN LOOP CONTINUO -->
 <audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
 
 <script>
-// Base de datos de frases local segura para evitar esperas de carga de internet
 const playlistData = {
   de: [
     { texto: "Guten Morgen", duracion: 3 },
@@ -167,7 +164,6 @@ let currentProgressTime = 0;
 let currentMaxDuration = 5;
 let audioCtx = null;
 
-// Capturas seguras de los elementos de la interfaz
 const langGate = document.getElementById('langGate');
 const mainApp = document.getElementById('mainApp');
 const btnPlay = document.getElementById('btnPlay');
@@ -180,18 +176,13 @@ const dialLang = document.getElementById('dialLang');
 const dialProgress = document.getElementById('dialProgress');
 const silentPlayer = document.getElementById('silentBackgroundPlayer');
 
-// Manejo unificado de clicks/taps en la portada
-document.addEventListener('click', function(e) {
-  const boton = e.target.closest('.gate-btn');
-  if (!boton) return;
-
-  currentLang = boton.getAttribute('data-lang');
+function abrirReproductor(idioma) {
+  currentLang = idioma;
   
-  // Intercambio inmediato de pantallas
+  // CORREGIDO: Cambio de pantalla limpio e instantáneo
   langGate.style.display = 'none';
   mainApp.style.display = 'block';
   
-  // Configurar las variables estéticas iniciales
   langBadge.textContent = currentLang.toUpperCase();
   langBadge.className = `section-badge ${currentLang}`;
   dialLang.textContent = currentLang.toUpperCase();
@@ -199,6 +190,15 @@ document.addEventListener('click', function(e) {
   
   currentIndex = 0;
   cargarFrase(currentIndex);
+}
+
+// Evento global adaptado de forma segura tanto para ordenadores como móviles
+document.addEventListener('click', function(e) {
+  const boton = e.target.closest('.gate-btn');
+  if (!boton) return;
+
+  const idioma = boton.getAttribute('data-lang');
+  abrirReproductor(idioma);
 });
 
 function cargarFrase(index) {
@@ -219,7 +219,6 @@ function cargarFrase(index) {
   }
 }
 
-// Generador de pitido nativo autónomo (Web Audio API)
 function emitirSonidoDePrueba() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -259,3 +258,9 @@ function iniciarContadorFrase() {
 }
 
 function actualizarContadorGrafico(tiempoActual) {
+  const porcentaje = tiempoActual / currentMaxDuration;
+  const circunferencia = 276.46;
+  const offset = circunferencia - (porcentaje * circumference);
+  dialProgress.style.strokeDashoffset = offset;
+  
+  const mins = Math.floor(tiempoActual / 60).toString().padStart(2, '0');
