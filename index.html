@@ -38,7 +38,7 @@ body{
   justify-content:center;
   padding:32px 16px 64px;
 }
-.app{width:100%;max-width:760px; display:none;} /* Oculta el reproductor al inicio */
+.app{width:100%;max-width:760px; display:none;}
 
 /* Pantalla de selección de idioma */
 .gate{
@@ -70,25 +70,6 @@ h1{font-size:26px;font-weight:600;margin:0;letter-spacing:0.2px;}
 .header-right{display:flex;align-items:center;gap:10px;}
 .card{background:var(--panel);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);}
 label{font-size:12px;color:var(--ink-dim);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
-select,input[type=text],textarea{
-  width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
-  border-radius:8px;padding:9px 11px;font-family:var(--font-ui);font-size:14px;
-}
-textarea{resize:vertical;min-height:90px;font-family:var(--font-ui);line-height:1.5;}
-select:focus,input:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:1px;}
-.row{display:flex;gap:12px;flex-wrap:wrap;}
-.row > div{flex:1;min-width:140px;}
-button{
-  font-family:var(--font-ui);background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
-  border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-weight:500;
-}
-button:hover{background:var(--line);}
-button:active{transform:scale(0.98);}
-button.primary{background:var(--amber);color:#2a1c05;border-color:var(--amber);}
-button.primary:hover{background:#f3b358;}
-button.ghost{background:transparent;}
-button:disabled{opacity:0.4;cursor:default;}
-.top-controls{display:flex;gap:10px;align-items:flex-end;margin-bottom:6px;flex-wrap:wrap;}
 .empty{color:var(--ink-dim);font-size:14px;text-align:center;padding:30px 10px;}
 .player{text-align:center;padding:34px 22px 26px;}
 .dial{position:relative;width:180px;height:180px;margin:0 auto 22px;}
@@ -103,43 +84,10 @@ button:disabled{opacity:0.4;cursor:default;}
 .dial-lang.idle{background:var(--panel-2);color:var(--ink-faint);}
 .dial-count{font-size:26px;font-weight:600;color:var(--ink);}
 .phrase{font-family:var(--font-voice);font-size:24px;line-height:1.35;min-height:64px;margin:0 0 4px;padding:0 8px;}
-.phrase.hidden-text{color:var(--ink-faint);font-style:italic;}
 .progress-index{color:var(--ink-dim);font-size:13px;margin-bottom:20px;}
 .controls-main{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:22px;}
 .controls-main button{width:44px;height:44px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;}
 .controls-main button.play{width:58px;height:58px;font-size:20px;}
-.sliders{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;text-align:left;max-width:420px;margin:0 auto;}
-.slider-group{font-size:12px;color:var(--ink-dim);}
-.slider-group input{width:140px;vertical-align:middle;}
-.toggles{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
-.toggles button.active{border-color:var(--amber);color:var(--amber);}
-.list-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
-.list-header h3{font-size:14px;font-weight:600;margin:0;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;}
-.item-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);}
-.item-row:last-child{border-bottom:none;}
-.item-row .txt{flex:1;font-family:var(--font-voice);font-size:15px;}
-.item-row .txt.tgt{color:var(--ink-dim);}
-.item-row.playing{background:rgba(234,162,58,0.08);border-radius:6px;}
-.item-row button{padding:4px 8px;font-size:12px;}
-.audio-badge{font-size:10px;padding:2px 6px;border-radius:10px;background:var(--de-dim);color:#9adfcd;white-space:nowrap;}
-.bulk-box{margin-top:14px;}
-.bulk-box p{font-size:12px;color:var(--ink-faint);margin:6px 0 8px;}
-.small-note{font-size:12px;color:var(--ink-faint);margin-top:10px;}
-.new-form{display:none;}
-.new-form.open{display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
-.file-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;}
-.file-label:hover{background:var(--line);}
-.file-label input{display:none;}
-.audio-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.audio-field .fname{font-size:11px;color:var(--ink-dim);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.err{color:var(--es);font-size:12px;margin-top:6px;}
-.sync-note{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:-10px;margin-bottom:18px;}
-.sync-note.error{color:var(--es);}
-
-/* Selector de cajón: Vocabulario / Frases, dentro de cada idioma */
-.category-tabs{display:flex;gap:8px;margin-bottom:18px;}
-.cat-tab{flex:1;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;}
-.cat-tab.active{background:var(--amber);color:#2a1c05;border-color:var(--amber);}
 </style>
 </head>
 <body>
@@ -189,11 +137,117 @@ button:disabled{opacity:0.4;cursor:default;}
   </div>
 </div>
 
-<!-- 🔊 ELEMENTO OCULTO PARA EL TRUCO DEL AUDIO FANTASMA -->
-<!-- Mantiene al móvil despierto en segundo plano reproduciendo un micro-silencio en bucle continuo -->
+<!-- 🔊 AUDIO FANTASMA EN BASE64 -->
 <audio id="silentBackgroundPlayer" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAD"></audio>
 
 <script>
-// Base de datos de prueba interna (puedes cambiar los links por tus audios reales en MP3 o WAV)
+// Base de datos de frases local segura para pruebas instantáneas
 const playlistData = {
   de: [
+    { texto: "Guten Morgen", duracion: 3 },
+    { texto: "Wie geht es dir?", duracion: 4 },
+    { texto: "Vielen Dank", duracion: 3 }
+  ],
+  zh: [
+    { texto: "早上好 (Zǎoshang hǎo)", duracion: 3 },
+    { texto: "你好吗？(Nǐ hǎo ma?)", duracion: 4 },
+    { texto: "谢谢 (Xièxiè)", duracion: 3 }
+  ]
+};
+
+let currentLang = 'de';
+let currentIndex = 0;
+let isPlaying = false;
+let timerInterval = null;
+let currentProgressTime = 0;
+let currentMaxDuration = 5;
+
+// Variables para sintetizar sonidos limpios de prueba (Web Audio API)
+let audioCtx = null;
+
+// Elementos del DOM
+const langGate = document.getElementById('langGate');
+const mainApp = document.getElementById('mainApp');
+const btnPlay = document.getElementById('btnPlay');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const phraseDisplay = document.getElementById('phraseDisplay');
+const progressIndex = document.getElementById('progressIndex');
+const langBadge = document.getElementById('langBadge');
+const dialLang = document.getElementById('dialLang');
+const dialProgress = document.getElementById('dialProgress');
+const silentPlayer = document.getElementById('silentBackgroundPlayer');
+
+// Manejo de la pantalla de bienvenida (Corregido: ahora es inmediato)
+document.querySelectorAll('.gate-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    currentLang = e.currentTarget.getAttribute('data-lang');
+    
+    // Ocultar portada y mostrar app sin bloqueos de red
+    langGate.style.display = 'none';
+    mainApp.style.display = 'block';
+    
+    langBadge.textContent = currentLang.toUpperCase();
+    langBadge.className = `section-badge ${currentLang}`;
+    dialLang.textContent = currentLang.toUpperCase();
+    dialLang.className = `dial-lang ${currentLang}`;
+    
+    currentIndex = 0;
+    cargarFrase(currentIndex);
+  });
+});
+
+function cargarFrase(index) {
+  const lista = playlistData[currentLang];
+  if (!lista || lista.length === 0) return;
+
+  phraseDisplay.textContent = lista[index].texto;
+  progressIndex.textContent = `Frase ${index + 1} de ${lista.length}`;
+  
+  // Reiniciar contadores de tiempo del reproductor simulado
+  currentProgressTime = 0;
+  currentMaxDuration = lista[index].duracion;
+  actualizarContadorGrafico(0);
+
+  // Actualizar pantalla de bloqueo nativa
+  actualizarPantallaBloqueo(lista[index].texto);
+
+  // Si estaba reproduciéndose, emitir el pitido bilingüe y continuar contador
+  if (isPlaying) {
+    emitirSonidoDePrueba();
+    iniciarContadorFrase();
+  }
+}
+
+// Generador de un "Bip" electrónico armónico simulando el audio bilingüe real
+function emitirSonidoDePrueba() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    // Frecuencia diferente según el idioma para identificarlo
+    osc.frequency.setValueAtTime(currentLang === 'de' ? 440 : 580, audioCtx.currentTime); 
+    
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5); // Desvanecer en 0.5 seg
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  } catch(e) {
+    console.log("AudioContext bloqueado temporalmente por el navegador");
+  }
+}
+
+function iniciarContadorFrase() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!isPlaying) return;
+    
+    currentProgressTime += 0.1;
+    if (currentProgressTime >= currentMaxDuration) {
+      clearInterval(timerInterval);
